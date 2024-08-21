@@ -7,17 +7,17 @@ export default function Nav() {
     const [isConfig, setIsConfig] = useState(false);
     const router = useRouter();
 
-    const toggleConfig = () => {
+    const toggleConfigInOut = () => {
         toast.info('Redirecionando...', {
-          autoClose: 5000,
+            autoClose: 5000,
         });
     
         setTimeout(() => {
-          setIsConfig(prevState => {
-            const newConfigState = !prevState;
-            router.push(newConfigState ? '/configurar-json' : '/');
-            return newConfigState;
-          });
+            setIsConfig(prevState => {
+                const newConfigState = !prevState;
+                router.push(newConfigState ? '/configurar/configurar-json' : '/');
+                return newConfigState;
+            });
         }, 5000); 
       };
 
@@ -38,7 +38,7 @@ export default function Nav() {
                     <div className="flex items-center space-x-4 mr-12">
                         {isConfig ? (
                             <button
-                                onClick={toggleConfig}
+                                onClick={toggleConfigInOut}
                                 className="text-white hover:text-gray-300 transition duration-300 ease-in-out"
                                 aria-label="Sair"
                                 title="Voltar"
@@ -47,7 +47,7 @@ export default function Nav() {
                             </button>
                         ) : (
                             <button
-                                onClick={toggleConfig}
+                                onClick={toggleConfigInOut}
                                 className="text-white hover:text-gray-300 transition duration-300 ease-in-out"
                                 aria-label="Entrar"
                                 title="Configurar JSON"

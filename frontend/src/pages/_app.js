@@ -2,8 +2,20 @@ import '@/styles/globals.css';
 import Head from 'next/head';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
+  const { pathname } = router;
+
+  useEffect(() => {
+    const validRoutes = ['/', '/configurar/configurar-json'];
+    if (!validRoutes.includes(pathname)) {
+      router.push('/');
+    }
+  }, [pathname, router]);
+
   return (
     <>
       <Head>
