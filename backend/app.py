@@ -1,7 +1,8 @@
-from flask import Flask, jsonify, request
-import json
-import os
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
+import json
+import pandas as pd
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -59,6 +60,13 @@ def readPath(filename):
         print("Erro ao decodificar JSON no arquivo.")
         return []
 
+def has_invalid_object(obj):
+    if isinstance(obj, dict):
+        return True
+    if isinstance(obj, list):
+        return any(has_invalid_object(item) for item in obj)
+    return False
+
 @app.route('/api/save-attributes', methods=['POST'])
 def save_attributes():
     try:
@@ -101,13 +109,17 @@ def reset_files():
     try:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         json_path = os.path.join(base_dir, 'data.json')
-        excel_path = os.path.join(base_dir, 'data.xlsx')
+        excel_path = os.path.join(base_dir, 'filtered_data.xlsx')
+        csv_path = os.path.join(base_dir, 'filtered_data.csv')
         
         if os.path.exists(json_path):
             os.remove(json_path)
         
         if os.path.exists(excel_path):
             os.remove(excel_path)
+
+        if os.path.exists(csv_path):
+            os.remove(csv_path)
         return jsonify({"message": "Arquivos resetados com sucesso."}), 200
 
     except FileNotFoundError as fnf_error:
@@ -121,7 +133,7 @@ def reset_files():
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
-    file = request.files['file']
+    file = request.files.get('file')
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_filename = os.path.join(base_dir, 'data.json')
     attributes_filename = os.path.join(base_dir, 'attributes.json')
@@ -148,33 +160,65 @@ def upload_file():
         path = readPath(path_filename)
         results = []
 
+        def convert_value(value):
+            if isinstance(value, bool):
+                return str(value)
+            elif isinstance(value, (int, float)):
+                return str(value)
+            elif isinstance(value, dict):
+                return {k: convert_value(v) for k, v in value.items()}
+            elif isinstance(value, list):
+                return [convert_value(v) for v in value]
+            return value
+
         if isinstance(data, list):
             for item in data:
                 value = extract_value(item, path)
-                results.append({"value": value})
+                results.append({"value": convert_value(value)})
         else:
             value = extract_value(data, path)
-            results.append({"value": value})
+            results.append({"value": convert_value(value)})
 
-        def has_invalid_object(obj):
-            if isinstance(obj, dict):
-                return any(has_invalid_object(v) for v in obj.values())
-            if isinstance(obj, list):
-                return any(has_invalid_object(item) for item in obj)
-            return obj is None
+        if any(has_invalid_object(result['value']) for result in results):
+            return jsonify({"error": "A configuração dos atributos está incorreta. Valores inválidos detectados em objetos."}), 400
 
         if any(result['value'] is None for result in results):
             return jsonify({"error": "A configuração dos atributos está incorreta."}), 400
 
-        if any(has_invalid_object(result['value']) for result in results):
-            return jsonify({"error": "A configuração dos atributos está incorreta. Valores inválidos detectados em objetos."}), 400
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        export_filename = os.path.join(base_dir, 'filtered_data.csv')
+        df = pd.DataFrame(results)
+        df.to_csv(export_filename, index=False)
         return jsonify(results), 200
 
     except json.JSONDecodeError:
         return jsonify({"error": "O arquivo pode estar corrompido ou não estar no formato JSON correto."}), 400
 
     except Exception as e:
-        return jsonify({"error": f"Ocorreu um erro: {str(e)}"}), 500
+        return jsonify({"error": f"Erro inesperado no upload: {str(e)}"}), 500
+
+@app.route('/api/export', methods=['GET'])
+def export_to_excel():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_filename = os.path.join(base_dir, 'filtered_data.csv')
+
+    if not os.path.exists(csv_filename):
+        return jsonify({"error": "Nenhum dado para exportar."}), 404
+
+    try:
+        df = pd.read_csv(csv_filename)
+        excel_filename = os.path.join(base_dir, 'filtered_data.xlsx')
+        df.to_excel(excel_filename, index=False)
+
+        return send_file(
+            excel_filename,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name='filtered_data.xlsx'
+        )
+
+    except Exception as e:
+        return jsonify({"error": f"Erro inesperado ao exportar para Excel: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001, debug=True)

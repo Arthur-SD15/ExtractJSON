@@ -45,6 +45,31 @@ export default function UploadForm() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/export', {
+        method: 'GET',
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        toast.success("Planilha exportada com sucesso.");
+      } else {
+        const data = await res.json();
+        toast.error(data.error);
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
   const handleReset = async () => {
     setFile(null);
     setResponse(null);
@@ -90,6 +115,7 @@ export default function UploadForm() {
           </button>
           <button
             type="button"
+            onClick={handleExport}
             className="py-2 px-4 bg-green-600 text-white text-sm rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
             Exportar Planilha
