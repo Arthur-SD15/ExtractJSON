@@ -36,6 +36,7 @@ export default function UploadForm() {
       if (res.ok) {
         const data = await res.json();
         setResponse(data);
+        console.log(data);
         toast.success("Arquivo enviado com sucesso.");
       } else {
         const data = await res.json();

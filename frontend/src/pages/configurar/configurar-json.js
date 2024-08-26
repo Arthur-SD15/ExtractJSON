@@ -22,9 +22,58 @@ export default function ConfigurarJSON() {
     setAttributes(newAttributes);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  };
+  const handleSaveAttributes = async () => {
+    const convertAttributes = (attributes) => {
+      return attributes.map(attrSet => 
+        attrSet.map(attr => {
+          const trimmed = attr.trim();
+          const num = Number(trimmed);
+          return isNaN(num) ? trimmed : num;
+        })
+      );
+    };
+  
+    const attributesToSend = convertAttributes(attributes);
+  
+    const hasAtLeastOneValidAttribute = attributesToSend.some(attrSet =>
+      attrSet.some(attr => attr !== '' && attr != null)
+    );
+    
+    const hasEmptyAttributes = attributesToSend.some(attrSet =>
+      attrSet.some(attr => attr === '' || attr == null)
+    );
+  
+    if (!hasAtLeastOneValidAttribute) {
+      toast.error('Pelo menos um atributo deve ser preenchido.');
+      return;
+    }
+  
+    if (hasEmptyAttributes) {
+      toast.error('Nenhum atributo pode estar em branco.');
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:3001/api/save-attributes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ attributes: attributesToSend }),
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        toast.success('Atributos salvos com sucesso.');
+        console.log(result);
+      } else {
+        const error = await response.json();
+        toast.error(`${error.error}`);
+      }
+    } catch (error) {
+      toast.error(`${error.message}`);
+    }
+  };  
 
   const toggleExample = () => {
     setShowExample(!showExample);
@@ -38,10 +87,11 @@ export default function ConfigurarJSON() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="max-w-3xl mx-auto p-8 bg-gray-50 shadow-lg mb-6 mt-8 rounded-lg">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSaveAttributes}>
           <div className="space-y-6">
             <p className="text-sm text-gray-500 mt-0">
               Obs: Para configurar os atributos e possibilitar a listagem das informações, é necessário preencher os níveis de atributos de baixo para cima. Certifique-se de definir todos os níveis necessários para extrair as informações do JSON corretamente.
+              Você deve adicionar o número do índice no caminho quando você deseja acessar um item de um array em uma estrutura JSON.
             </p>
             <button
               type="button"
@@ -58,36 +108,44 @@ export default function ConfigurarJSON() {
                 <pre className="bg-gray-900 p-2 rounded-md text-xs overflow-x-auto mt-2">
                   {`
 [
-  {
-    "id": "b87718c3-1101-4d04-9488-952d3afb2f16",
-    "code": null,
-    "summary": null,
-    "researchProject": null,
-    "students": [
-      {
-        "id": "fa39709c-283f-4f07-81fb-a4369b3817c4",
-        "student": {
-          "id": "d881cfb0-6243-4253-b4ed-7b28f9f945d5",
-          "institutionId": "12a1c659-9688-41f9-8236-8bd97a559047",
-          "institution": {
-            "id": "12a1c659-9688-41f9-8236-8bd97a559047",
-            "name": null,
-            "address": {
-              "id": "dbd488e2-df6c-420d-b4e9-b795244c7fd4",
-              "number": "000",
-              "street": "XXXXXXXXXXXXXXXX",
-              "neighborhood": "XXXXXXXXXXX",
-              "city": "Campo Grande",
-              "state": "MS",
-              "postalCode": "00000-00",
-              "country": "BR",
-              "additionalAddress": null
+    {
+      "id": "b87718c3-1101-4d04-9488-952d3afb2f16",
+      "code": null,
+      "summary": null,
+      "researchProject": null,
+      "students": [
+        {
+          "id": "fa39709c-283f-4f07-81fb-a4369b3817c4",
+          "student": {
+            "id": "d881cfb0-6243-4253-b4ed-7b28f9f945d5",
+            "institutionId": "12a1c659-9688-41f9-8236-8bd97a559047",
+            "institution": {
+              "id": "12a1c659-9688-41f9-8236-8bd97a559047",
+              "name": null,
+              "address": {
+                "id": "dbd488e2-df6c-420d-b4e9-b795244c7fd4",
+                "number": "000",
+                "street": "XXXXXXXXXXXXXXXX",
+                "neighborhood": "XXXXXXXXXXX",
+                "city": "Campo Grande",
+                "state": "MS",
+                "postalCode": "00000-00",
+                "country": "BR",
+                "additionalAddress": null
+              },
+              "academics": [{
+                "id": "d881cfb0-6243-4253-b4ed-7b28f9f945d5",
+                "name": "XXXXXXXXXXXXXXXX"
+              },
+              {
+                "id": "d881cfb0-6243-4253-b4ed-7b28f9f945d5",
+                "name": "XXXXXXXXXXXXXXXX"
+              }]
             }
           }
         }
-      }
-    ]
-  }
+      ]
+    }
 ]
                   `}
                 </pre>
@@ -100,6 +158,17 @@ export default function ConfigurarJSON() {
                   <li>institution</li>
                   <li>address</li>
                   <li>city</li>
+                </ul>
+                <p className="text-sm text-gray-700 mt-2">
+                  Se você está lidando com um array em qualquer nível da sua estrutura JSON e deseja acessar algum item desse array, você deve usar o índice.
+                </p>
+                <ul className="list-disc list-inside text-sm text-gray-700 mt-2">
+                  <li>students</li>
+                  <li>student</li>
+                  <li>institution</li>
+                  <li>academics</li>
+                  <li>0</li>
+                  <li>name</li>
                 </ul>
               </div>
             )}
@@ -138,10 +207,11 @@ export default function ConfigurarJSON() {
                 +
               </button>
               <button
-                type="submit"
-                className="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                type="button"
+                onClick={handleSaveAttributes}
+                className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
-                Salvar
+                Salvar Atributos
               </button>
             </div>
           </div>
