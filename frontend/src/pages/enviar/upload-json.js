@@ -40,10 +40,10 @@ export default function UploadForm() {
         toast.success("Arquivo enviado com sucesso.");
       } else {
         const data = await res.json();
-        toast.error(`${data.error}`);
+        setError(data.error || 'Erro ao enviar arquivo.');
       }
     } catch (err) {
-      toast.error(`${err.message}`);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -58,18 +58,18 @@ export default function UploadForm() {
     }
 
     try {
-        const res = await fetch('http://localhost:3001/api/reset', {
-            method: 'POST',
-        });
+      const res = await fetch('http://localhost:3001/api/reset', {
+        method: 'POST',
+      });
 
-        if (res.ok) {
-            toast.info("Formulário resetado e arquivos excluídos.");
-        } else {
-            const data = await res.json();
-            toast.error(`Erro ao excluir arquivos: ${data.error}`);
-        }
+      if (res.ok) {
+        toast.info("Formulário resetado e arquivos excluídos.");
+      } else {
+        const data = await res.json();
+        toast.error(`Erro ao excluir arquivos: ${data.error}`);
+      }
     } catch (err) {
-        toast.error(`${err.message}`);
+      toast.error(err.message);
     }
   };
 
@@ -91,16 +91,15 @@ export default function UploadForm() {
         toast.success("Planilha exportada com sucesso.");
       } else {
         const data = await res.json();
-        toast.error(`${data.error}`);
+        toast.error(data.error || 'Erro ao exportar planilha.');
       }
     } catch (err) {
-      toast.error(`${err.message}`);
+      toast.error(err.message);
     }
   };
 
   return (
     <>
-      
       <div className="max-w-4xl mx-auto p-4 bg-white shadow-2xl mt-4 rounded-lg">
         <form onSubmit={handleSubmit} className="flex items-center space-x-2">
           <div className="flex-1 flex flex-col">
@@ -146,13 +145,19 @@ export default function UploadForm() {
             {error}
           </div>
         ) : (
-          <div className="space-y-4">
-            {response.map((item, index) => (
-              <div key={index} className="p-2 border border-gray-200 rounded-lg">
-                <p className="text-gray-600 text-sm mt-1 whitespace-pre-wrap">{item.value}</p>
-              </div>
-            ))}
-          </div>
+          Array.isArray(response) && response.length > 0 ? (
+            <div className="space-y-4">
+              {response.map((item, index) => (
+                <div key={index} className="p-2 border border-gray-200 rounded-lg">
+                  <p className="text-gray-600 text-sm mt-1 whitespace-pre-wrap">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-600 text-sm text-center">
+              Nenhum dado disponível para exibir.
+            </div>
+          )
         )}
       </div>
       <ToastContainer />
