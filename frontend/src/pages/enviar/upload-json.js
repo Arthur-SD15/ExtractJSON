@@ -5,7 +5,6 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function UploadForm() {
   const [file, setFile] = useState(null);
   const [response, setResponse] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fileInputRef = useRef(null);
@@ -21,7 +20,6 @@ export default function UploadForm() {
       return;
     }
 
-    setLoading(true);
     setError(null);
 
     const formData = new FormData();
@@ -40,12 +38,10 @@ export default function UploadForm() {
         toast.success("Arquivo enviado com sucesso.");
       } else {
         const data = await res.json();
-        setError(data.error || 'Erro ao enviar arquivo.');
+        setError(data.error);
       }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      toast.error(err.message);
     }
   };
 
@@ -66,32 +62,7 @@ export default function UploadForm() {
         toast.info("Formulário resetado e arquivos excluídos.");
       } else {
         const data = await res.json();
-        toast.error(`Erro ao excluir arquivos: ${data.error}`);
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
-  };
-
-  const handleExport = async () => {
-    try {
-      const res = await fetch('http://localhost:3001/api/export', {
-        method: 'GET',
-      });
-
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'data.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        toast.success("Planilha exportada com sucesso.");
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Erro ao exportar planilha.');
+        toast.error(data.error);
       }
     } catch (err) {
       toast.error(err.message);
@@ -114,13 +85,11 @@ export default function UploadForm() {
           <button
             type="submit"
             className="py-2 px-4 bg-blue-600 text-white text-sm rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            disabled={loading}
           >
-            {loading ? 'Uploading...' : 'Upload'}
+            Upload
           </button>
           <button
             type="button"
-            onClick={handleExport}
             className="py-2 px-4 bg-green-600 text-white text-sm rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
             Exportar Planilha
@@ -134,14 +103,13 @@ export default function UploadForm() {
           </button>
         </form>
       </div>
-
       <div className="max-w-4xl mx-auto p-4 my-6 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
         {!response && !error ? (
           <div className="text-gray-600 text-sm text-center">
             Nenhum arquivo JSON foi enviado.
           </div>
         ) : error ? (
-          <div className="text-red-600 text-center">
+          <div className="text-red-600 text-sm font-semibold text-center">
             {error}
           </div>
         ) : (

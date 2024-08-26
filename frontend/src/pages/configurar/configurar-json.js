@@ -22,7 +22,38 @@ export default function ConfigurarJSON() {
     setAttributes(newAttributes);
   };
 
+  const resetAttributes = () => {
+    setAttributes([['']]);
+  };
+
+  const handleResetAttribute = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/attributes/reset', {
+        method: 'POST',
+      });
+
+      if (res.ok) {
+        toast.info("Formulário resetado e atributos excluídos.");
+        resetAttributes();
+      } else {
+        const data = await res.json();
+        toast.error(data.error);
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
   const handleSaveAttributes = async () => {
+    const hasEmptyAttributes = attributes.some(attrSet =>
+      attrSet.some(attr => attr.trim() === '')
+    );
+
+    if (hasEmptyAttributes) {
+      toast.error('Nenhum atributo pode estar em branco.');
+      return;
+    }
+
     const convertAttributes = (attributes) => {
       return attributes.map(attrSet => 
         attrSet.map(attr => {
@@ -34,24 +65,6 @@ export default function ConfigurarJSON() {
     };
   
     const attributesToSend = convertAttributes(attributes);
-  
-    const hasAtLeastOneValidAttribute = attributesToSend.some(attrSet =>
-      attrSet.some(attr => attr !== '' && attr != null)
-    );
-    
-    const hasEmptyAttributes = attributesToSend.some(attrSet =>
-      attrSet.some(attr => attr === '' || attr == null)
-    );
-  
-    if (!hasAtLeastOneValidAttribute) {
-      toast.error('Pelo menos um atributo deve ser preenchido.');
-      return;
-    }
-  
-    if (hasEmptyAttributes) {
-      toast.error('Nenhum atributo pode estar em branco.');
-      return;
-    }
   
     try {
       const response = await fetch('http://localhost:3001/api/save-attributes', {
@@ -67,13 +80,13 @@ export default function ConfigurarJSON() {
         toast.success('Atributos salvos com sucesso.');
         console.log(result);
       } else {
-        const error = await response.json();
-        toast.error(`${error.error}`);
+        const data = await response.json();
+        toast.error(data.error);
       }
-    } catch (error) {
-      toast.error(`${error.message}`);
+    } catch (err) {
+      toast.error(err.message);
     }
-  };  
+  };
 
   const toggleExample = () => {
     setShowExample(!showExample);
@@ -204,14 +217,21 @@ export default function ConfigurarJSON() {
                 onClick={handleAddAttributeSet}
                 className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
-                +
+                Adicionar
               </button>
               <button
                 type="button"
                 onClick={handleSaveAttributes}
-                className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
               >
                 Salvar Atributos
+              </button>
+              <button
+                type="button"
+                onClick={handleResetAttribute}
+                className="inline-flex items-center px-3 py-2 bg-gray-600 text-white rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
+              >
+                Resetar
               </button>
             </div>
           </div>
