@@ -16,7 +16,7 @@ Para a implementação da aplicação, foram utilizados React.js e Next.js. A es
 
 No back-end, foram empregados conceitos de manipulação de dados e desenvolvimento de APIs com Flask. O Flask foi escolhido devido à sua capacidade de criar APIs RESTful de forma eficiente, adaptando-se perfeitamente ao processamento e gerenciamento de arquivos JSON.
 
-A aplicação oferece funcionalidades de upload, processamento e exportação de dados. Para processar arquivos JSON, utiliza-se a biblioteca padrão do Python para manipulação de JSON, permitindo a leitura e extração de informações específicas. A exportação dos dados filtrados para o formato Excel (.xlsx) é realizada com a biblioteca pandas, facilitando a análise e o compartilhamento das informações.
+A aplicação oferece funcionalidades de upload, processamento e exportação de dados. Para processar arquivos JSON, utiliza-se a biblioteca padrão do Python para manipulação de JSON, permitindo a leitura e extração de informações específicas. A exportação dos dados filtrados para o formato Excel (.xlsx) é realizada com a biblioteca pandas, facilitando a análise e o compartilhamento das informações..
 
 
 ## 📝 Pré-requesitos
