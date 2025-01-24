@@ -26,7 +26,7 @@ export default function UploadForm() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('http://localhost:3001/api/upload', {
+      const res = await fetch('https://extractjson-api.onrender.com/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -47,7 +47,7 @@ export default function UploadForm() {
 
   const handleExport = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/export', {
+      const res = await fetch('https://extractjson-api.onrender.com/api/export', {
         method: 'GET',
       });
 
@@ -79,7 +79,7 @@ export default function UploadForm() {
     }
 
     try {
-      const res = await fetch('http://localhost:3001/api/reset', {
+      const res = await fetch('https://extractjson-api.onrender.com/api/reset', {
         method: 'POST',
       });
 

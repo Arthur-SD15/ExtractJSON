@@ -28,7 +28,7 @@ export default function ConfigurarJSON() {
 
   const handleResetAttribute = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/attributes/reset', {
+      const res = await fetch('https://extractjson-api.onrender.com/api/attributes/reset', {
         method: 'POST',
       });
 
@@ -67,7 +67,7 @@ export default function ConfigurarJSON() {
     const attributesToSend = convertAttributes(attributes);
   
     try {
-      const response = await fetch('http://localhost:3001/api/save-attributes', {
+      const response = await fetch('https://extractjson-api.onrender.com/api/save-attributes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
