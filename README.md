@@ -4,8 +4,9 @@
 
 <p align="center">
   <a href="#-Projeto">Projeto</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Pré-requesitos">Pré-requesitos</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Executar Projeto">Executar</a>
+  <a href="#-Configurar">Configurar</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-Executar Projeto">Executar</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-ExtractJSON-API>ExtractJSON-API</a>
 </p>
 
 ## 💻 Projeto
@@ -14,58 +15,79 @@ O projeto desenvolvido neste repositório é uma aplicação web que visa atende
 
 Para a implementação da aplicação, foram utilizados React.js e Next.js. A estilização foi realizada com Tailwind CSS, já a comunicação com o back-end é feita por meio da API Fetch, garantindo uma integração eficiente entre o cliente e o servidor.
 
-No back-end, foram empregados conceitos de manipulação de dados e desenvolvimento de APIs com Flask. O Flask foi escolhido devido à sua capacidade de criar APIs RESTful de forma eficiente, adaptando-se perfeitamente ao processamento e gerenciamento de arquivos JSON.
-
-A aplicação oferece funcionalidades de upload, processamento e exportação de dados. Para processar arquivos JSON, utiliza-se a biblioteca padrão do Python para manipulação de JSON, permitindo a leitura e extração de informações específicas. A exportação dos dados filtrados para o formato Excel (.xlsx) é realizada com a biblioteca pandas, facilitando a análise e o compartilhamento das informações..
+A aplicação oferece funcionalidades de upload, processamento e exportação de dados. Para processar arquivos JSON, utiliza-se a biblioteca padrão do Python para manipulação de JSON, permitindo a leitura e extração de informações específicas. A exportação dos dados filtrados para o formato Excel (.xlsx) é realizada com a biblioteca pandas, facilitando a análise e o compartilhamento das informações.
 
 
-## 📝 Pré-requesitos
+## ⚙️ Configurar
 
-Antes de baixar o projeto você vai precisar ter instalado na sua máquina as seguintes ferramentas:
+Antes de exportar, é necessário configurar quais campos são necessários no JSON, seguindo uma ordem de hierarquia.
 
-- [Git](https://git-scm.com)
-- [NodeJS](https://nodejs.org/en/)
-- [NPM](https://www.npmjs.com/)
-  - [NextJS](https://nextjs.org/)
-  - [React](https://react.dev/)
-- [Python](https://www.python.org/)
-- [Pip](https://pip.pypa.io/en/stable/installation/)
-  - [Flask](https://flask.palletsprojects.com/en/3.0.x/)
-  - [Pandas](https://pandas.pydata.org/)
+Para configurar os atributos e possibilitar a listagem das informações, é necessário preencher os níveis de atributos de baixo para cima. Certifique-se de definir todos os níveis necessários para extrair as informações do JSON corretamente. Você deve adicionar o número do índice no caminho quando você deseja acessar um item de um array em uma estrutura JSON.
+
+```json
+[
+    {
+      "id": "b87718c3-1101-4d04-9488-952d3afb2f16",
+      "code": null,
+      "summary": null,
+      "researchProject": null,
+      "students": [
+        {
+          "id": "fa39709c-283f-4f07-81fb-a4369b3817c4",
+          "student": {
+            "id": "d881cfb0-6243-4253-b4ed-7b28f9f945d5",
+            "institutionId": "12a1c659-9688-41f9-8236-8bd97a559047",
+            "institution": {
+              "id": "12a1c659-9688-41f9-8236-8bd97a559047",
+              "name": null,
+              "address": {
+                "id": "dbd488e2-df6c-420d-b4e9-b795244c7fd4",
+                "number": "000",
+                "street": "XXXXXXXXXXXXXXXX",
+                "neighborhood": "XXXXXXXXXXX",
+                "city": "Campo Grande",
+                "state": "MS",
+                "postalCode": "00000-00",
+                "country": "BR",
+                "additionalAddress": null
+              },
+              "academics": [{
+                "id": "d881cfb0-6243-4253-b4ed-7b28f9f945d5",
+                "name": "XXXXXXXXXXXXXXXX"
+              },
+              {
+                "id": "d881cfb0-6243-4253-b4ed-7b28f9f945d5",
+                "name": "XXXXXXXXXXXXXXXX"
+              }]
+            }
+          }
+        }
+      ]
+    }
+]
+```
+
+Para acessar a cidade, você deve preencher os seguintes níveis de atributos:
+
+- students
+- student
+- institution
+- address
+- city
+
+Se você está lidando com um array em qualquer nível da sua estrutura JSON e deseja acessar algum item desse array, você deve usar o índice.
+
+- students
+- student
+- institution
+- academics
+- 0
+- name
 
 
 ## 🗂 Executar Projeto
 
 ```bash
-# Clonar Projeto.
-$ git clone https://github.com/Arthur-SD15/ExtractJSON.git
-
-# Entrar na pasta backend.
-$ cd backend
-
-# Criar um ambiente virtual Python.
-$ python3 -m venv venv
-
-# Ativar o ambiente virtual no Linux/Mac.
-$ source venv/bin/activate
-
-# Ativar o ambiente virtual no Windows.
-$ .\venv\Scripts\activate
-
-# Instalar a biblioteca pandas.
-$ pip install pandas
-
-# Crie o arquivo requirements.txt.
-# Instalar as dependências listadas no arquivo requirements.txt.
-$ pip install -r requirements.txt
-
-# Instalar a extensão Flask-CORS.
-$ pip install flask-cors
-
-# Executar.
-$ python3 app.py
-
-# Novo terminal.
 # Entrar na pasta frontend.
 $ cd frontend
 
@@ -74,6 +96,9 @@ $ npm install
 
 # Executar.
 $ npm run dev
-
  ```
 
+
+## 🌐 ExtractJSON-API
+
+Visite em: https://github.com/Arthur-SD15/ExtractJson-API
